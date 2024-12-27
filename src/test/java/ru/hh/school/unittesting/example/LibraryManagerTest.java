@@ -81,9 +81,47 @@ public class LibraryManagerTest {
         verifyNoMoreInteractions(notificationService);
     }
 
+    @Test
+    void returnNoBookWhenThereAreNoSuchBookBorrowed() {
+        final String userId = "test_user";
+        final String bookId = "test_book";
+
+        assertFalse(libraryManager.returnBook(bookId, userId));
+    }
+
+    @Test
+    void returnNoBookWhenBorrowedByAnotherUser() {
+        final String userId = "test_user_one";
+        final String anotherUserId = "test_user_two";
+        final String bookId = "test_book";
+        when(userService.isUserActive(anotherUserId)).thenReturn(true);
+        libraryManager.addBook(bookId, 5);
+        libraryManager.borrowBook(bookId, anotherUserId);
+
+        assertFalse(libraryManager.returnBook(bookId, userId));
+        verify(notificationService).notifyUser(anotherUserId, "You have borrowed the book: " + bookId);
+        verifyNoMoreInteractions(notificationService);
+    }
+
+    @Test
+    void returnBookProperly() {
+        final String userId = "test_user";
+        final String bookId = "test_book";
+        when(userService.isUserActive(userId)).thenReturn(true);
+        libraryManager.addBook(bookId, 5);
+        libraryManager.borrowBook(bookId, userId);
+
+        assertTrue(libraryManager.returnBook(bookId, userId));
+        assertEquals(5, libraryManager.getAvailableCopies(bookId));
+        verify(notificationService).notifyUser(userId, "You have borrowed the book: " + bookId);
+        verify(notificationService).notifyUser(userId, "You have returned the book: " + bookId);
+        verifyNoMoreInteractions(notificationService);
+    }
+
+
+
 
     /*
-    - boolean borrowBook(String bookId, String userId)
     - boolean returnBook(String bookId, String userId)
     - double calculateDynamicLateFee(int overdueDays,
                                     boolean isBestseller,
@@ -92,6 +130,7 @@ public class LibraryManagerTest {
     ****
     - void addBook(String bookId, int quantity)
     - int getAvailableCopies(String bookId)
+    - boolean borrowBook(String bookId, String userId)
 
      */
 }
