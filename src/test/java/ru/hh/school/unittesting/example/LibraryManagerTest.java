@@ -4,6 +4,8 @@ package ru.hh.school.unittesting.example;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hh.school.unittesting.homework.LibraryManager;
@@ -14,6 +16,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class LibraryManagerTest {
@@ -118,19 +121,23 @@ public class LibraryManagerTest {
         verifyNoMoreInteractions(notificationService);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "0, true, true, 0.0",
+        "10, true, true, 6.0",
+        "10, true, false, 7.5",
+        "10, false, true, 4.0",
+        "10, false, false, 5.0"
+    })
+    void testCalculateDynamicLateFee(int overdueDays,
+                                     boolean isBestseller,
+                                     boolean isPremiumMember,
+                                     double expectedLateFee) {
+        assertEquals(expectedLateFee, libraryManager.calculateDynamicLateFee(overdueDays, isBestseller, isPremiumMember));
+    }
 
-
-
-    /*
-    - boolean returnBook(String bookId, String userId)
-    - double calculateDynamicLateFee(int overdueDays,
-                                    boolean isBestseller,
-                                    boolean isPremiumMember)
-
-    ****
-    - void addBook(String bookId, int quantity)
-    - int getAvailableCopies(String bookId)
-    - boolean borrowBook(String bookId, String userId)
-
-     */
+    @Test
+    void throwsExceptionIfCalculateDynamicLateFeeForNegativeDays() {
+        assertThrows(IllegalArgumentException.class, () -> libraryManager.calculateDynamicLateFee(-1, false, false));
+    }
 }
