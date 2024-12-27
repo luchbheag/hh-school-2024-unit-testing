@@ -32,17 +32,17 @@ public class LibraryManagerTest {
     }
 
     @Test
-    void getAvalableCopiesWhenExists() {
-        final String bookName = "test_book";
-        libraryManager.addBook(bookName, 5);
+    void getAvailableCopiesWhenExists() {
+        final String bookId = "test_book";
+        libraryManager.addBook(bookId, 5);
 
-        assertEquals(5, libraryManager.getAvailableCopies(bookName));
+        assertEquals(5, libraryManager.getAvailableCopies(bookId));
     }
 
     @Test
-    void getAvalableCopiesWhenDoesNotExist() {
-        final String bookName = "test_book";
-        assertEquals(0, libraryManager.getAvailableCopies(bookName));
+    void getAvailableCopiesWhenDoesNotExist() {
+        final String bookId = "test_book";
+        assertEquals(0, libraryManager.getAvailableCopies(bookId));
     }
 
     @Test
